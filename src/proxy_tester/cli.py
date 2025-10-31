@@ -13,7 +13,7 @@ app = typer.Typer(help="Mass proxy tester (HTTP/HTTPS/SOCKS)")
 async def _probe(proxy: str, target: str, timeout: float) -> dict:
     t0 = time.perf_counter()
     try:
-        async with httpx.AsyncClient(proxies=proxy, timeout=timeout) as client:
+        async with httpx.AsyncClient(proxies=proxy, timeout=timeout)  # type: ignore[call-arg] as client:
             r = await client.get(target)
         dt = time.perf_counter() - t0
         return {"proxy": proxy, "ok": r.status_code < 400, "status": r.status_code, "latency_ms": int(dt*1000)}
@@ -65,4 +65,5 @@ def check(
     else:
         print("Unsupported output format. Use .json or .csv", file=sys.stderr)
         raise typer.Exit(code=2)
+
 
