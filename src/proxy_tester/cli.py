@@ -1,5 +1,9 @@
 ﻿from typing import Optional
-import json, csv, sys, time, asyncio
+import json
+import csv
+import sys
+import time
+import asyncio
 import httpx
 import typer
 from rich.progress import Progress
@@ -61,3 +65,4 @@ def check(
     else:
         print("Unsupported output format. Use .json or .csv", file=sys.stderr)
         raise typer.Exit(code=2)
+
