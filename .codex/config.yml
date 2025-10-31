@@ -1,0 +1,17 @@
+﻿version: 1
+tasks:
+  - id: ci
+    name: Run CI
+    run:
+      - pip install -e . pytest ruff mypy
+      - ruff check .
+      - mypy src
+      - pytest -q
+merge:
+  strategy: auto
+  require_green_ci: true
+  labels_allow: ["automerge", "codex"]
+  protected_branches: ["main"]
+conventions:
+  commit:
+    style: "conventional-commits"

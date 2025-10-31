@@ -1,0 +1,22 @@
+﻿[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proxy-tester"
+version = "0.1.0"
+description = "Fast proxy tester (HTTP/HTTPS/SOCKS), JSON/CSV outputs, concurrency."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{name = "Batyacorp2"}]
+dependencies = ["typer>=0.12", "httpx[socks]>=0.27", "rich>=13"]
+
+[project.scripts]
+proxy-tester = "proxy_tester.cli:app"
+
+[tool.ruff]
+line-length = 100
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
