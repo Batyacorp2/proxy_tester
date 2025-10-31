@@ -1,9 +1,10 @@
-﻿from typing import Optional
+from typing import Optional
 import json
 import csv
 import sys
 import time
 import asyncio
+
 import httpx
 import typer
 from rich.progress import Progress
@@ -13,13 +14,19 @@ app = typer.Typer(help="Mass proxy tester (HTTP/HTTPS/SOCKS)")
 async def _probe(proxy: str, target: str, timeout: float) -> dict:
     t0 = time.perf_counter()
     try:
-        async with httpx.AsyncClient(proxies=proxy, timeout=timeout)  # type: ignore[call-arg] as client:
+        client = httpx.AsyncClient(proxies=proxy, timeout=timeout)  # type: ignore[call-arg]
+        async with client as client:
             r = await client.get(target)
         dt = time.perf_counter() - t0
-        return {"proxy": proxy, "ok": r.status_code < 400, "status": r.status_code, "latency_ms": int(dt*1000)}
+        return {
+            "proxy": proxy,
+            "ok": r.status_code < 400,
+            "status": r.status_code,
+            "latency_ms": int(dt * 1000),
+        }
     except Exception as e:
         dt = time.perf_counter() - t0
-        return {"proxy": proxy, "ok": False, "error": str(e), "latency_ms": int(dt*1000)}
+        return {"proxy": proxy, "ok": False, "error": str(e), "latency_ms": int(dt * 1000)}
 
 @app.command("check")
 def check(
@@ -35,9 +42,11 @@ def check(
     async def runner():
         results = []
         sem = asyncio.Semaphore(concurrency)
+
         async def task(p):
             async with sem:
                 return await _probe(p, target, timeout)
+
         with Progress() as progress:
             t = progress.add_task("Checking proxies", total=len(proxies))
             tasks = [asyncio.create_task(task(p)) for p in proxies]
@@ -65,5 +74,3 @@ def check(
     else:
         print("Unsupported output format. Use .json or .csv", file=sys.stderr)
         raise typer.Exit(code=2)
-
-
